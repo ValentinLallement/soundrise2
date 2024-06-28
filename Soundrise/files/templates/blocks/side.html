@@ -1,0 +1,18 @@
+{% block side %}
+
+<div class="side-bar" style="color: transparent;display:flex ; flex-direction: row; justify-content:  center;">
+    <a href="{% url 'accounts:pulse'%}" style="align-self: center;"><i class="fa-regular fa-circle-play fa-xl" style="color: #ffffff; "></i></a>
+
+</div>
+
+
+<style>
+    .side-bar{
+        height: 610px;
+        width: 100px;
+        align-self: left;
+        background-color: rgba(29, 29, 29, 0.7);
+        
+    }
+</style>
+{% endblock side %}

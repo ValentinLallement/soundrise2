@@ -1,0 +1,31 @@
+{% extends 'layout/layout.html' %}
+{% block content %}
+
+{% for participant in conversation.participants.all %}
+    {% if participant != user %}
+        <p>Other participant: {{ participant.username }}</p>
+    {% endif %}
+{% endfor %}
+    
+
+    <div class="messages">
+        {% for message in messages %}
+            {% if message.sender == user %}
+                <div class="message-sent">
+                    {{ message.body }}
+                </div>
+            {% else %}
+                <div class="message-received">
+                    {{ message.body }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <textarea name="body" rows="5"></textarea>
+        <input type="submit" value="Envoyer">
+    </form>
+
+{% endblock content %}

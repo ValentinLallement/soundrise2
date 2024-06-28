@@ -1,0 +1,160 @@
+{% block bottombar %}
+<nav class="navbar fixed-bottom" style="background-color: rgb(29, 29, 29); border-top: 1px solid #464646; padding: 5px 0; max-height: 37px;">
+  <div class="bottom d-flex justify-content-around align-items-center w-100 " style=" margin-left: 20px; " >
+      <div class="text-center">
+          <a href="{% url 'accounts:parametre_onglet' 'default' %}" class="nav-item nav-link d-inline-block" style="font-size: 70%; ">Parametre</a>
+          <a href="{% url 'accounts:parametre_onglet' 'about' %}" class="nav-item nav-link d-inline-block" style="font-size: 70%;">About</a>
+          <a href="{% url 'accounts:parametre_onglet' 'confidentiality' %}" class="nav-item nav-link d-inline-block" style="font-size: 70%;">Confidentiality</a>
+          <a href="{% url 'accounts:parametre_onglet' 'cookie' %}" class="nav-item nav-link d-inline-block" style="font-size: 70%;">Cookie</a>
+      </div>
+      <!----à finir       code ;    <div class="play" {% if current_beat %} style="display: flex;" {% else %}  {% endif %} >
+        <div class="buttons">
+          <button class="skip-btn"><svg viewBox="0 0 16 16" class="bi bi-skip-backward-fill" fill="currentColor" height="16" width="16" xmlns="http://www.w3.org/2000/svg"> <path d="M.5 3.5A.5.5 0 0 0 0 4v8a.5.5 0 0 0 1 0V8.753l6.267 3.636c.54.313 1.233-.066 1.233-.697v-2.94l6.267 3.636c.54.314 1.233-.065 1.233-.696V4.308c0-.63-.693-1.01-1.233-.696L8.5 7.248v-2.94c0-.63-.692-1.01-1.233-.696L1 7.248V4a.5.5 0 0 0-.5-.5z"></path> </svg></button>
+        </div>
+        <audio id="audio-player" controls {% if current_beat %} autoplay {% endif %}>
+          <source src="{{ current_beat.audio_file_url }}" type="audio/mp3">
+          Your browser does not support the audio element.
+        </audio>
+        <progress id="progress_{{ current_beat.id }}" value="{{ audio_player_state.currentTime }}" max="{{ audio_player_state.duration }}" style="opacity: 0%;"></progress>
+        <div class="buttons">
+            
+            <button class="skip-btn"><svg viewBox="0 0 16 16" class="bi bi-skip-backward-fill" fill="currentColor" height="16" width="16" xmlns="http://www.w3.org/2000/svg"> <path d="M.5 3.5A.5.5 0 0 0 0 4v8a.5.5 0 0 0 1 0V8.753l6.267 3.636c.54.313 1.233-.066 1.233-.697v-2.94l6.267 3.636c.54.314 1.233-.065 1.233-.696V4.308c0-.63-.693-1.01-1.233-.696L8.5 7.248v-2.94c0-.63-.692-1.01-1.233-.696L1 7.248V4a.5.5 0 0 0-.5-.5z"></path> </svg></button>
+            
+           
+          </div>
+          </div>
+              -->
+     
+      
+
+        
+      
+
+      <div class="text-center">
+          <p class="m-0" style="font-size: 12px;">Soundrise copyright © all rights reserved</p>
+      </div>
+  </div>
+</nav>
+<style>
+    
+    .play{
+        width:30% ;
+        height: 30px;
+        border-style: groove;
+        border-color: #ffffff;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+    .m-0{
+        white-space: nowrap;
+    }
+    
+
+    
+</style>
+<script>
+
+
+
+  
+  function togglePlayPause(beatId) {
+        var audio = document.getElementById('audio_' + beatId);
+        var playIcon = document.getElementById('play_icon_' + beatId);
+        var pauseIcon = document.getElementById('pause_icon_' + beatId);
+        var allAudios = document.querySelectorAll('audio');
+    
+        // Pause all other audios
+        allAudios.forEach(function(aud) {
+            if (aud.id !== 'audio_' + beatId) {
+                aud.pause();
+                var otherBeatId = aud.id.split('_')[1];
+                var otherPlayIcon = document.getElementById('play_icon_' + otherBeatId);
+                var otherPauseIcon = document.getElementById('pause_icon_' + otherBeatId);
+                otherPlayIcon.style.display = 'inline-block';
+                otherPauseIcon.style.display = 'none';
+            }
+        });
+    
+        // Toggle play/pause for the selected beat
+        if (audio.paused) {
+            audio.play();
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'inline-block';
+        } else {
+            audio.pause();
+            playIcon.style.display = 'inline-block';
+            pauseIcon.style.display = 'none';
+        }
+            // Ajax call to update views
+      var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '{% url "beats:update_views" %}', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.setRequestHeader('X-CSRFToken', csrftoken);
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+              var response = JSON.parse(xhr.responseText);
+              if (response.success) {
+                  console.log('Views updated successfully:', response.views);
+              } else {
+                  console.error('Failed to update views:', response.error);
+              }
+          }
+      };
+      xhr.send('beat_id=' + beatId);
+  
+    }
+    function updateViews(beatId) {
+  
+            // Ajax call to update views
+      var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '{% url "beats:update_views" %}', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.setRequestHeader('X-CSRFToken', csrftoken);
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+              var response = JSON.parse(xhr.responseText);
+              if (response.success) {
+                  console.log('Views updated successfully:', response.views);
+              } else {
+                  console.error('Failed to update views:', response.error);
+              }
+          }
+      };
+      xhr.send('beat_id=' + beatId);
+  
+    }
+    function seekAudio(beatId) {
+        var audio = document.getElementById('audio_' + beatId);
+        var seekbar = document.getElementById('seekbar_' + beatId);
+        var value = seekbar.value;
+        audio.currentTime = value;
+    }
+    
+    function updateProgressBar(beatId) {
+        var audio = document.getElementById('audio_' + beatId);
+        var progressBar = document.getElementById('progress_' + beatId);
+        var seekbar = document.getElementById('seekbar_' + beatId);
+    
+        var value = (audio.currentTime / audio.duration) * 100;
+        progressBar.value = value;
+        seekbar.value = audio.currentTime;
+    
+        updateSeekbarTooltip(seekbar);
+    }
+    
+    function updateSeekbarTooltip(seekbar) {
+        var tooltip = seekbar.nextElementSibling;
+        var value = seekbar.value;
+        var minutes = Math.floor(value / 60);
+        var seconds = Math.floor(value % 60);
+        var time = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        tooltip.innerHTML = time;
+        tooltip.style.left = (value / seekbar.max) * 100 + '%';
+    }
+  
+  
+  </script>
+{% endblock bottombar %}

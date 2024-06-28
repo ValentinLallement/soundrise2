@@ -1,0 +1,327 @@
+{% block topbar %}
+    <nav class="navbar" style="background-color: rgb(29, 29, 29); border-bottom: 1px solid #464646; ">
+        <div id="left">
+
+        </div>
+
+        
+        <div id="center">
+
+            <a href="{% url 'content:index' %}" id='logo_home' class="navbar-top-item"><strong>Soundrise</strong></a>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'accounts:explore' %}" class="navbar-top-item">Explore</a>
+                <div class="form">
+                    <form action="{% url 'accounts:explore' %}" method="GET" class="form2">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" id="search" name="search" class="form-control me-2" placeholder="Search... ">
+                            <button type="submit" class="theBut" >Search</button>
+                        </div>
+                    </form>
+                    
+                </div>
+
+                
+            {% else %}
+                <a href="{% url 'accounts:explore' %}" class="navbar-top-item">Explore</a>
+                <div class="form">
+                    <form method="GET" class="form2">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" id="search" name="search" class="form-control me-2" placeholder="Search..." value="{{ search_term }}" >
+                            <button type="submit" class="theBut" >Search</button>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="right">
+            {% if user.is_authenticated %}
+            <a href="{% url 'accounts:profile' %}" class="navbar-top-item"  >Profile</a>
+            <a href="{% url 'accounts:logout' %}" class="navbar-top-item"  >Logout</a>
+            {% else %}
+            <a href="{% url 'accounts:login' %}" class="navbar-top-item"  >Login</a>
+            <a href="{% url 'accounts:register' %}" class="navbar-top-item" >Register</a>
+            {% endif %}
+            {% if user.is_staff %}
+            <a href="{% url 'admin:index' %}" class="navbar-top-item">Admin</a>
+            {% endif %}
+            {% if user.is_authenticated %}
+            <a href="{% url 'accounts:conversations' %}" class="navbar-top-item"  ><i class="fa-solid fa-message fa-lg" style="color: #ffffff;"></i></a>
+            <button id="bouton-play"  class="navbar-top-item" style="background-color: transparent; border: none;" ><i class="fa-solid fa-compact-disc fa-lg" style="color: #ffffff;"></i></a>
+                <div id="menu-play">
+                    <ul style="display: flex;flex-direction: column;">
+                        
+
+                        
+                        <ul>
+                            
+                            
+                        </ul>
+                        <div class="container-play">
+                            <h4>Selection</h4>
+                            <div class="liste-play">
+                                {% for playlist_item in playlist %}
+                                    <div class="ligne-play">
+                                        <li>
+                                            {{ playlist_item.beat.title }} -
+                                            <a href="{% url 'lire_titre' playlist_item.beat.id %}">Lire</a> -
+                                            <a href="{% url 'supprimer_titre' playlist_item.id %}" class="btn btn-danger">Supprimer</a>
+                                        </li>
+                                    </div>
+                                {% endfor %}
+                                
+                            </div>
+                            <div class="player">
+                                <audio controls class="w-100">
+                                    <source src="{{ beat.audio_file_url }}" type="audio/mp3">
+                                    Your browser does not support the audio element.
+                                </audio>
+                                
+                                
+                                 
+                            </div>
+                    
+                            <div class="playlist">
+                                {% if titre_suivant %}
+                                <a href="{% url 'lire_titre' titre_suivant %}">Lire suivant</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </ul>
+                    
+                </div>
+            {%endif%}
+        </div>
+    </nav>
+
+<style>
+    audio{
+        display: flex;
+    }
+    .liste-play{
+        height: 200px;
+        width: 90%;
+        margin-left: 5%;
+        margin-bottom: 2%;
+        
+        overflow-y: scroll;
+    }
+    .ligne-play{
+        height:100px;
+        width: 100%;
+        background-color: blue;
+    }
+    #menu-play {
+    left: 1225px;
+    top: 58px;
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    width: 300px;
+    display: none;
+    position: absolute;
+    background-color: #3a3838;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+    border-radius: 10px;
+}
+
+#menu-play:hover #menu-play {
+    display: block;
+}
+
+#menu-play ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#menu-play li {
+    padding: 10px;
+}
+    .navbar-top-item{
+        color: rgb(255, 255, 255); padding: 7px 0px;
+    }
+    .form-control-me-2{
+        width: 300px;
+    }
+    #searchnone{
+    display: none;
+    }
+    #search{
+        border-radius: 50px;
+        border: none;
+        outline: none;
+        width: 400px;
+    }
+    #center{
+        display: flex;
+    }
+    .searchbtn
+    {
+        border-top-right-radius: 50px;
+        border-bottom-right-radius: 50px;
+        border: none;
+        padding-right: 11px;
+        position: absolute;
+        top: 1px;
+        left: 338px;
+        padding: 6px 1px;
+        background-color: #2d373f00;
+        color: #fff;
+    }
+    .theBut{
+        -webkit-border-top-right-radius: 5px;
+        -webkit-border-bottom-right-radius: 5px;
+        -moz-border-radius-topright: 5px;
+       -moz-border-radius-bottomright: 5px;
+         border-top-right-radius: 5px;
+        background-color: dark;
+        border-bottom-right-radius: 5px;
+        color: white;
+    }
+    @media screen and (min-width:710px) and (max-width:950px){
+        .input-group{
+            flex-wrap: nowrap;
+        width: 100%;
+        }
+       
+        .w-100-d-flex{
+            width: 10%;
+        }
+        .form{
+            width: 60%;
+            color: transparent;
+        }
+        .form2{
+            width: 100%;
+            
+        }
+        .theBut{
+            background-color: transparent;
+        }
+        #center{
+            width: 60%;
+            box-sizing: none;
+        }
+    }   #left{
+        width: 1%;
+        justify-content: left;
+    }
+
+    @media screen and (min-width:651px) and (max-width:709px){
+        .input-group{
+            flex-wrap: nowrap;
+        width: 100%;
+        }
+        .theBut{
+            width: 15%;
+            background-color: transparent;
+        }
+        .w-100-d-flex{
+            width: 20%;
+        }
+        .form{
+            width: 60%;
+        }
+        
+        #center{
+            width: 30%;
+            box-sizing: none;
+            margin-left: -100px;
+        }
+    }   #left{
+        
+        justify-content: left;
+    }
+
+    @media screen and (min-width:486px) and (max-width:650px){
+        .input-group{
+            flex-wrap: nowrap;
+        width: 100%;
+        }
+        .theBut{
+            width: 15%;
+            background-color: transparent;
+        }
+        .w-100-d-flex{
+            width: 20%;
+        }
+        .form{
+            width: 60%;
+        }
+        #center{
+            width: 30%;
+            box-sizing: none;
+            margin-left: -30%;
+        }
+          
+        #left{
+            
+            justify-content: left;
+        }
+        .navbar-top-item{
+            margin-left: 3px;
+            margin-right: 3px;
+        }
+        } 
+        @media screen and (min-width:0px) and (max-width:485px){
+        .input-group{
+            flex-wrap: nowrap;
+        width: 100%;
+        }
+        .theBut{
+            width: 15%;
+            background-color: transparent;
+            color: transparent;
+            
+        }
+        .w-100-d-flex{
+            width: 20%;
+        }
+        .form{
+            width: 60%;
+        }
+        .form2{
+            width: 130%;
+        }
+        #center{
+            width: 30%;
+            box-sizing: none;
+            margin-left: -30%;
+        }
+          
+        #left{
+            
+            justify-content: left;
+        }
+        .navbar-top-item{
+            margin-left: 3px;
+            margin-right: 3px;
+
+            
+        }
+        
+        } 
+
+
+       
+</style>
+<script>
+    const bouton = document.getElementById('bouton-play');
+const menu = document.getElementById('menu-play');
+
+bouton.addEventListener('click', () => {
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+});
+
+
+
+
+
+</script>
+{% endblock topbar %}

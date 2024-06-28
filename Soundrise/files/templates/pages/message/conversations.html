@@ -1,0 +1,41 @@
+{% extends 'layout/layout.html' %}
+{% block content %}
+<title>Messagerie - Conversations</title>
+<h1>Mes conversations</h1>
+
+    <div class="conv-box">
+        {% for conversation in conversations %}
+            <div class="ligne-conv">
+                <a href="" class="titre-conv">{{conversation.title}}
+                    
+                </a>
+                <div>{{conversation.participants}}</div>
+            </div>
+        {% endfor %}
+        
+                    
+        
+        </div>
+    <style>
+        .ligne-conv{
+            width: 100%;
+            height: 10%;
+            background-color: rgb(122, 122, 122);
+            margin-bottom: 20px;
+            
+        }
+        .conv-box{
+            height: 90%;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            
+        }
+        .titre-conv{
+            color: azure;
+            margin-left: 10px;
+            
+        }
+    </style>
+{% endblock content %}

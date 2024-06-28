@@ -1,0 +1,248 @@
+{% extends 'layout/layout.html' %}
+
+{% block content %}
+<div class="mainDiv-detail_beat">
+    <button onclick="goBack()"style="background-color:transparent; border:none;position: absolute; left :30px;bottom:650px">
+    <i class="fa-solid fa-arrow-left fa-lg" style="color: #ffffff;"></i>
+    </button>
+    <img src="{{ beat.cover_image.url }}" alt="{{ beat.title }} Cover" class='background-image-beat_detail'>
+    
+    <div id="menu-detail_beat-left" style="overflow-wrap: break-word;">
+        <img src="{{ beat.cover_image.url }}" alt="{{ beat.title }} Cover" class='square-image-x-fill beat-icon-beat_detail'>
+        <h1 style="overflow-wrap: break-word; max-width: 70%; margin-bottom: 10px;"> <strong>{{ beat.title.upper }}</strong></h1>
+        <p style="margin-bottom: 2px;">-</p>
+        <h3 style="overflow-wrap: break-word; max-width: 70%; color: #555555; font-size: small;">{{ beat.artist.username }}</h3>
+        <div id="info-div">
+            <h3 style="color: #555555; font-size: small;">information</h3>
+            <div style="text-align: start; color: #868686">
+                <p><strong>Release Date:</strong> <span class="info-value">{{ beat.release_date }}</span></p>
+                <p><strong>BPM:</strong> <span class="info-value">{{ beat.BPM }}</span></p>
+                <p><strong>Key:</strong> <span class="info-value">{{ beat.key }}</span></p>
+                <p><strong>Genre:</strong> <span class="info-value">{{ beat.genre }}</span></p>
+            </div>
+        </div>
+        <div id="description-beat_detail">
+            <p>{{ beat.description }}</p>
+        </div>
+    </div>
+    
+    <div id="menu-detail_beat-middle">
+        <div id="price_menu">
+            <div id='grid3x2'>
+                    <div class="grid-item"><strong>BASIC .mp3</strong></div>
+                    <div class="grid-item"><strong>PRENIUM .waw</strong></div>
+                    <div class="grid-item"><strong>UNLIMITED .wav</strong></div>
+                    <div class="grid-item"><strong>PRO STEMS</strong></div>
+                    <div class="grid-item"><strong>FULL MONETISATION</strong></div>
+                    <div class="grid-item"><strong>EXCLUSIVE</strong></div>
+                </strong>
+            </div>
+        </div>
+    </div>
+    
+    <div id="menu-detail_beat-right">
+        <img src="{{ user.profile_picture }}" class="img-fluid rounded-circle mb-3 square-image-x-fill" alt="Profile Picture">
+        <h1 style="overflow-wrap: break-word; max-width: 70%; margin-bottom: 10px;"> <strong>{{ beat.artist.username.upper }}</strong></h1>
+        <p style="margin-bottom: 2px;">-</p>
+        <h3 style="overflow-wrap: break-word; max-width: 70%; color: #555555; font-size: small;"></h3>
+        <p>followers: {{ follower_count }}</p>
+        <p>followed acounts: {{ following_count }}</p>
+        {% if request.user != user %}
+        {% if request.user in user.followers.all %}
+            <a href="{% url 'accounts:toggle_follow' user.id beat.id %}" class="btn btn-danger" style="color: #ffffff;">Unfollow</a>
+        {% else %}
+            <a href="{% url 'accounts:toggle_follow' user.id beat.id %}" class="btn btn-primary" style="color: #ffffff;">Follow</a>
+        {% endif %}
+    {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            {% if request.user.is_authenticated %}
+                {% if request.user in beat.likes.all %}
+                    <button type="submit" name="unlike_button" style="background: none; border: none;">
+                        <div style="display: flexbox; color: #ffffff;"><i class="fa-solid fa-heart" style="color: #c03535; margin-right: 4px;"></i> {{ beat.like_count }}</div>
+                    </button>
+                {% else %}
+                    <button type="submit" name="like_button" style="background: none; border: none;">
+                        <div style="display: flexbox; color: #ffffff;"><i class="fa-regular fa-heart" style="color: #ffffff; margin-right: 4px;"></i> {{ beat.like_count }}</div>
+                    </button>
+                {% endif %}
+            {% else %}
+                <p>Please <a href="{% url 'accounts:login' %}">log in</a> to like this beat.</p>
+            {% endif %}
+        </form>
+        <div id="info-div">
+            <h3 style="color: #555555; font-size: small;">information</h3>
+            <div style="text-align: start; color: #868686">
+                <p><strong>Email:</strong> <span class="info-value">{{ beat.artist.mail_pro }}</span></p>
+                <p><strong>From:</strong> <span class="info-value">{{ beat.artist.country }}</span></p>
+                <p><strong>Phone:</strong> <span class="info-value">{{ beat.artist.num }}</span></p>
+            </div>
+        </div>
+        <div id="description-beat_detail">
+            <p>{{ beat.artist.profile_free_text  }}</p>
+        </div>
+    </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap');
+.mainDiv-detail_beat {
+    position: relative; 
+    height: 100vh; 
+    display: flex; 
+    align-items: center;
+}
+
+.background-image-beat_detail {
+    position: absolute;
+    width: 100%;
+    border-radius: 50px;
+    filter: blur(20px);
+    opacity: 0.2;
+    z-index: -1;
+}
+
+#info-div {
+    border-top: solid 1px #555555;
+    border-bottom: solid 1px #555555;
+    width: 80%;
+    text-align: center;
+    padding: 10px 0;
+    font-family: "Mulish", sans-serif;
+    margin-bottom: 10px;
+}
+
+#description-beat_detail {
+    border-top: solid 1px #555555;
+    border-bottom: solid 1px #555555;
+    width: 80%;
+    padding: 10px 0;
+    font-family: "Mulish", sans-serif;
+    text-align: start;
+    color: #868686;
+}
+
+#menu-detail_beat-left,
+#menu-detail_beat-right {
+    height: 76%;
+    width: 316px;
+    background: rgb(30,30,30);
+    position: relative;
+    border-radius: 10px;
+    margin-bottom: 100px;
+    padding-top: 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-height: 80%; /* Set max height for scrollable div */
+    overflow-y: auto; /* Enable vertical scrolling */
+    scrollbar-width: none; /* Firefox */
+}
+
+#menu-detail_beat-left {
+    margin-right: 10px;
+    margin-left: 250px;
+    background: linear-gradient(166deg, rgba(30,30,30,1) 0%, rgba(25,25,25,1) 16%, rgba(20,20,20,1) 100%);
+}
+
+#menu-detail_beat-right {
+    margin-left: 10px;
+    margin-right: 250px;
+    background: linear-gradient(194deg, rgba(30,30,30,1) 0%, rgba(25,25,25,1) 16%, rgba(20,20,20,1) 100%);
+}
+
+#menu-detail_beat-middle {
+    min-width: 400px;
+    flex: 1;
+    height: 76%;
+    background: rgb(30,30,30);
+    background: linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(25,25,25,1) 16%, rgba(20,20,20,1) 100%);
+    border-radius: 10px;
+    margin-bottom: 100px;
+    padding-top: 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgb(243, 1, 1);
+    background: linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(25,25,25,1) 16%, rgba(20,20,20,1) 100%);
+    transition: background-color 1s;
+}
+#menu-detail_beat-middle:hover{
+    background-color: steelblue;
+
+}
+#grid3x2 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Three columns of equal width */
+    grid-template-rows: repeat(2, minmax(0, 1fr)); /* Two rows that fill available space */
+    gap: 20px; /* Gap between grid items */
+    justify-content: center; /* Center-align grid items horizontally */
+    width: 100%;
+    height: 100%; /* Ensure the grid container fills its parent's height */
+}
+
+#grid3x2 .grid-item {
+    background-color: #00000000;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    border: #555555 solid 1px;
+    /* Make grid items fill the entire grid cell */
+    width: 100%; /* Ensure items stretch to fill the width of the grid cell */
+    max-height: 300px; /* Set maximum height for each grid item */
+    display: flex; /* Use flexbox to align content vertically */
+    justify-content: center; /* Center-align content horizontally */
+    align-items: center; /* Center-align content vertically */
+    overflow: hidden; /* Hide overflow content */
+    padding: 0px 20px;
+    padding-top: 20px;
+    padding-bottom: 100px;
+}
+#price_menu{
+    width: 100%;
+    padding: 2px 20px;
+}
+
+.square-image-x-fill::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.info-text p {
+    display: flex;
+    justify-content: space-between;
+    word-wrap: break-word;
+}
+
+.info-value {
+    float: right;
+    max-width: 50%;
+    text-align: right;
+}
+
+#menu-detail_beat-left::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for WebKit-based browsers */
+}
+
+#menu-detail_beat-left {
+    -ms-overflow-style: none;  /* Hide scrollbar for Internet Explorer and Edge */
+}
+.beat-icon-beat_detail {
+    margin-bottom: 16px;
+}
+</style>
+<script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+{% endblock content %}

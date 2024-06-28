@@ -1,0 +1,252 @@
+{% extends 'layout/layout.html' %}
+
+{% block content %}
+<div style="display: flex;flex-direction: row;">
+    {% block side %}
+    {% include "blocks/side.html" %}
+      
+    {% endblock side %}
+
+
+    <div class="all">
+        <div class="info-compte">
+            <div class="col-md-4 text-center">
+                <img src="{{ user_profile.profile_picture }}" class="img-fluid rounded-circle mb-3 square-image-big" alt="Profile Picture">
+                {% if user_profile.rank == 'admin' %}
+                <p style="color: red;">
+                    <strong>{{ user_profile.rank }}</strong>
+                </p>
+                {% elif user_profile.rank == 'diamond' %}
+                <p style="color: rgb(50, 110, 187);">
+                    <strong>{{ user_profile.rank }}</strong>
+                </p>
+                {% else %}
+                <p>
+                    <strong>{{ user_profile.rank }}</strong>
+                </p>
+                {% endif %}
+                <h2>{{ user_profile.username }}</h2>
+                <h4 class="text-muted">{{ user_profile.full_name }}</h4>
+                <p><strong>Email:</strong> {{ user_profile.email }}</p>
+                <p><strong>Country:</strong> {{ user_profile.country }}</p>
+                <p><strong>Profile Description:</strong> {{ user_profile.profile_free_text }}</p>
+                <p><strong>Telephone:</strong> {{ user_profile.tel }}</p>
+                <p><strong>Professional Mail:</strong> {{ user_profile.mail_pro }}</p>
+                <p>followers: {{ follower_count }}</p>
+                <p>followed acounts: {{ following_count }}</p>
+                {% if request.user != user_profile %}
+                    {% if request.user in user_profile.followers.all %}
+                        <a href="" class="btn btn-danger">Unfollow</a>
+                    {% else %}
+                        <a href="" class="btn btn-primary">Follow</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="bar"></div>
+        <div class="pulse-main">
+            <div class="titre-pulse">Pulse</div>
+        <div class="pulse">
+            <div class="interactions"></div>
+            <div class="contenu">
+            <img class="contenu1" src="/static/format.jpg">
+                
+                <div class="content">
+                    
+                </div>
+                
+            </img>
+            
+            
+            </div>
+            <div class="interactions">
+                
+                <i class="fa-regular fa-heart fa-2xl" style="color: #ffffff;align-self: center;"></i>
+                <i class="fa-regular fa-bookmark fa-2xl" style="color: #ffffff;align-self: center;"></i>
+                <i class="fa-regular fa-comment fa-2xl" style="color: #ffffff;align-self: center;"></i>
+                <i class="fa-solid fa-share fa-2xl" style="color: #ffffff; align-self: center;"></i>
+            </div>
+            
+        </div>
+        <div class="pulse">
+            <div class="interactions"></div>
+            <div class="contenu">
+            <img class="contenu1" src="/static/format.jpg">
+                
+                <div class="content"></div>
+                
+            </img>
+            
+            
+            </div>
+            <div class="interactions">
+                
+                <i class="fa-regular fa-heart fa-2xl" style="color: #ffffff;align-self: center;"></i>
+                <i class="fa-regular fa-bookmark fa-2xl" style="color: #ffffff;align-self: center;"></i>
+                <i class="fa-regular fa-comment fa-2xl" style="color: #ffffff;align-self: center;"></i>
+                <i class="fa-solid fa-share fa-2xl" style="color: #ffffff; align-self: center;"></i>
+            </div>
+            
+        </div>
+        <div class="pulse">
+            <div class="interactions"></div>
+            <div class="contenu">
+            <img class="contenu1" src="/static/format.jpg">
+                
+                <div class="content"></div>
+                
+            </img>
+            
+            
+            </div>
+            <div class="interactions">
+                
+                <i class="fa-regular fa-heart fa-2xl" style="color: #ffffff;align-self: center;"></i>
+                <i class="fa-regular fa-bookmark fa-2xl" style="color: #ffffff;align-self: center;"></i>
+                <i class="fa-regular fa-comment fa-2xl" style="color: #ffffff;align-self: center;"></i>
+                <i class="fa-solid fa-share fa-2xl" style="color: #ffffff; align-self: center;"></i>
+            </div>
+            
+        </div>
+        </div>
+        
+        <div class="bar"></div>
+        <div class="info-music">
+            <div id="menu-detail_beat-left" style="overflow-wrap: break-word;">
+                <img src="{{ beat.cover_image.url }}" alt="{{ beat.title }} Cover" class='square-image-x-fill beat-icon-beat_detail'>
+                <h1 style="overflow-wrap: break-word; max-width: 70%; margin-bottom: 10px;"> <strong>{{ beat.title.upper }}</strong></h1>
+                <p style="margin-bottom: 2px;">-</p>
+                <h3 style="overflow-wrap: break-word; max-width: 70%; color: #555555; font-size: small;">{{ beat.artist.username }}</h3>
+                <div id="info-div">
+                    <h3 style="color: #555555; font-size: small;">information</h3>
+                    <div style="text-align: start; color: #868686">
+                        <p><strong>Release Date:</strong> <span class="info-value">{{ beat.release_date }}</span></p>
+                        <p><strong>BPM:</strong> <span class="info-value">{{ beat.BPM }}</span></p>
+                        <p><strong>Key:</strong> <span class="info-value">{{ beat.key }}</span></p>
+                        <p><strong>Genre:</strong> <span class="info-value">{{ beat.genre }}</span></p>
+                    </div>
+                </div>
+                <div id="description-beat_detail">
+                    <p>{{ beat.description }}</p>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width: 100px;">Buy</button>
+        </div>
+
+    </div>
+
+</div>
+<style>
+    .all{
+        height: 100%;
+        width: 90%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+    .bar{
+        height: 100%;
+        width: 1px;
+        background-color: whitesmoke;
+        fill-opacity: (0.7);
+
+    }
+    .info-compte{
+        height: 100%;
+        width: 25%;
+        background-color: rgb(36, 35, 35);
+        padding-left: 100px;
+        padding-top: 40px;
+    }
+    .info-compte:hover{
+        background-color: rgb(58, 55, 55);
+    }
+    .info-music:hover{
+        background-color: rgb(58, 55, 55);
+        
+    }
+    .info-music{
+        height: 100%;
+        width: 25%;
+        background-color: rgb(36, 35, 35);
+        padding-left: 100px;
+        padding-top: 100px;
+    }
+    .pulse{
+        height: 735px;
+        width: 100%;
+        background-color:blue;
+        display: flex;
+        flex-direction: row;
+        
+        
+        
+    }
+    .pulse-main{
+        height: 100%;
+        max-height: 735px;
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll; 
+        
+    }
+    .contenu{
+        display: flex;
+        flex-direction: column;
+        width: 60%;
+        height: 100%;
+        max-height: 735px;
+       overflow-y: hidden;
+        overflow-x: hidden;
+        
+
+    }
+    .contenu1{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 735px;
+        z-index: 2;
+        
+
+    }
+    .interactions{
+        width: 20%;
+        height: 100%;
+        background-color: rgb(36, 35, 35);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        padding-top: 150px;
+        padding-bottom: 150px;
+    }
+    .titre-pulse{
+        font-size: 150%;
+        top:70px;
+        left: 760px;
+        color: white;
+        position: absolute;
+        z-index: 4;
+    }
+    .titre-pulse:hover{
+        color: white;
+    }
+    .content{
+        height:88%;
+        width: 27%;
+        left:584px;
+        
+        position: absolute;
+    }
+    img {
+        height: 735px;
+    }
+    .buy-play{
+        width: 100px;
+        height: 30px;
+        align-self: center;
+        background-color: blue;
+    }
+</style>
+{% endblock content %}

@@ -1,0 +1,12 @@
+{% extends 'layout/layout.html' %}
+{% block content %}
+<title>Messagerie - add une conversation</title>
+
+<a href="{% url 'accounts:create_message' %}">Ecrire</a>
+
+<form action="" method="post">
+    {%csrf_token%}
+    <input type="text" id="title">
+    <input type="hidden" name="id" value="{{ conversation.id }}">
+</form>
+{% endblock content %}

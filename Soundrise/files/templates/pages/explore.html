@@ -1,0 +1,552 @@
+{% extends 'layout/layout.html' %}
+{% load custom_tags %}
+{% load static %}
+{% block content %}
+<div style="display: flex;flex-direction: row;">
+    {% block side %}
+    {% include "blocks/side.html" %}
+      
+    {% endblock side %}
+ 
+<link rel="stylesheet" href="{% static "css/extra.css" %}">
+<div class="bodyPage" style="display: flex; flex-direction: row;">
+    <nav id="sidebar" class="col-md-2 d-md-block text-white sidebar" style="background-color: rgb(29, 29, 29); width: 160px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <div class="position-sticky pt-3" style="flex-grow: 1;">
+            <h5 class="text-center">Filters & Sortings</h5>
+            <ul class="nav flex-column">
+            </ul>
+            <form id="filter-form" method="GET" class="mt-4">
+                {% csrf_token %}
+                
+                <div class="form-group" style="color: #fff; margin-bottom: 20px;">
+                    <label for="sort_by" class="form-label" style="color: #fff;">Sort By:</label>
+                    <select name="sort_by" class="form-control" style="color: #fff;">
+                        <option value="default" {% if sort_by == 'default' %} selected {% endif %}>Default</option>
+                        <option value="trending" {% if sort_by == 'trending' %} selected {% endif %}>Trending</option>
+                        <option value="price" {% if sort_by == 'price' %} selected {% endif %}>Price (reversed)</option>
+                        <option value="price (reversed)" {% if sort_by == 'price (reversed)' %} selected {% endif %}>Price</option>
+                        <option value="distance" {% if sort_by == 'distance' %} selected {% endif %}>Distance no</option>
+                        <option value="popularity" {% if sort_by == 'popularity' %} selected {% endif %}>Popularity no</option>
+                        <option value="latest" {% if sort_by == 'latest' %} selected {% endif %}>Latest</option>
+                        <option value="oldest" {% if sort_by == 'oldest' %} selected {% endif %}>Oldest</option>
+                        <option value="rating" {% if sort_by == 'rating' %} selected {% endif %}>Rating no</option>
+                        
+                    </select>
+                </div>
+            
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="price">Price range:</label>
+                    <div style="display: flex; justify-content: space-between;">
+                        <input type="range" id="price" name="cursor_price" min="0" max="1000" style="width: 175px;">   
+                        <div>0€ - <span id="price-value">all</span>€</div>
+                    </div>
+                </div>
+            
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="genre">Genre:</label>
+                    <input class="form-control" type="text" id="genre" name="genre" value="{{ genre }}"style="color: #fff;">
+                </div>
+            
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="artist">Artist name:</label>
+                    <input class="form-control" type="text" id="artist" name="artist" value="{{ artist }}" style="color: #fff;">
+                </div>
+            
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="release_date">Date:</label>
+                    <input class="form-control" type="date" id="release_date" name="release_date" value="{{ release_date }}"style="color: #fff;">
+                </div>
+            
+                <br>
+                <button class="btn btn-primary" type="submit" style="width: 80%;">Apply</button>
+            </form>
+            <form method="GET" class="w-100">
+                {% csrf_token %}
+                <div>
+                    <input type="text" id="searchnone" name="search" class="form-control" placeholder="Search..." value="" >
+                    <input class="form-control" type="text" id="artist" name="artist" value="" style="display: none;">
+                    <input class="form-control" type="text" id="genre" name="genre" value="" style="display: none;">
+                    <input class="form-control" type="date" id="release_date" name="release_date" value="" style="display: none;">
+                    <button type="submit" class="btn btn-primary" style="width: 80%; margin-top: 20px;">Reset</button>
+                </div>
+            </form>
+        </div>
+    </nav>
+
+<!-- Main Content -->
+<main id="main-content" class="col-12" style="overflow: auto;">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom" style="width: 1200px; margin-left: 40px;">
+        <a href="{% url 'accounts:search_beatmakers' %}" style="color: #fff; white-space: nowrap;">Search Beatmakers</a>
+        <form method="GET" class="w-100">
+            {% csrf_token %}
+            <div class="input-group" style="width: 500px; margin-left: 100px;">
+                <input class="form-control" type="text" id="genre" name="genre" value=""style="color: #fff; display: none;">
+                <input class="form-control" type="date" id="release_date" name="release_date" value=""style="color: #fff; display: none;">
+                <input class="form-control" type="text" id="artist" name="artist" value="" style="color: #fff; display: none;">
+                <div>
+                    <input type="text" id="search" name="search" class="form-control" placeholder="Search..." value="" >
+                    <button type="submit" class="searchbtn">Search</button>
+                </div>
+                
+            </div>
+        </form>
+    </div>
+
+    <!-- Content Area with Beats -->
+    <div class="content-area" style="height: calc(100vh - 220px); overflow-y: auto; margin-top: 20px; padding: 20px;">
+        {% if beats %}
+        {% for beat in beats %}
+        <a href="{% url 'accounts:detail_beat' beat.id %}" style="color: #fff;">
+        <div id="beat_{{ beat.id }}" class="beat-item" style="border-radius: 4px; padding: 0px; margin-bottom: 10px; position: relative;">
+
+            <div id="THEDIV" style="display: flex; flex-wrap: wrap; position: relative;">
+                <div style="flex: 1 0 200px; margin-right: 20px; position: relative; overflow: hidden;">
+                    <div style="position: relative;">
+                        <img class="rounded square-image-small gradientDiv" src="{{ beat.cover_image.url }}" alt="{{ beat.title }} Cover" style="width: 100%; border-radius: 1px; top: 65px;">
+                        {% if beat.title|upper|length > 9 %}
+                        <h1 style="position: absolute; top:95px; left:10px;" class="noselect"><strong>{{ beat.title|uppercase_and_slice }}...</strong></h1>
+                        {% else %}
+                        <h1 style="position: absolute; top:95px; left:10px;" class="noselect"><strong>{{ beat.title.upper }}</strong></h1>
+                        {% endif %}
+                        
+                        <div style="position: relative; top: 20px; left: 65%; background-color: rgba(31, 31, 31, 0.473); width: 220px; max-height: 80px;">
+                            <h1 style="overflow-wrap: break-word;" class="beatArtist">
+                                <strong><a href="{% url 'accounts:profile' beat.artist.username %}" style="color: #fff;">{{ beat.artist }}</a></strong>
+                            </h1>
+                            {% if beat.artist|get_artist_rank == 'admin' %}
+                            <p style="position: absolute; color: red;">
+                                <strong>{{ beat.artist|get_artist_rank }}</strong>
+                            </p>
+                            {% elif beat.artist|get_artist_rank == 'diamond' %}
+                            <p style="position: absolute; color: rgb(50, 110, 187);">
+                                <strong>{{ beat.artist|get_artist_rank }}</strong>
+                            </p>
+                            {% else %}
+                            <p style="position: absolute;">
+                                <strong>{{ beat.artist|get_artist_rank }}</strong>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{% url 'accounts:detail_beat' beat.id %}">
+                        <img class="square-image-small coverimage" src="{{ beat.cover_image.url }}" alt="{{ beat.title }} Cover Overlay" style="width: 140px; height: 140px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-top-right-radius: 4px; border-bottom-right-radius: 4px;">
+                    </a>
+                </div>
+                <div style="height: 100%;  background-color: #007bff;"></div>
+                <div style="flex: 2 0 0; margin-right: 0px; display: flex; flex-wrap: wrap; padding: 20px;width: 300px;">
+                    <div style="display: flex;">
+                        <p style="color: #666; margin-bottom: 5px;">{{ beat.genre }} - {{ beat.release_date }} - {{ beat.view_count }} plays</p>
+                    </div>
+                    {% if beat.audio_file_url %}
+                    <div style="width: 100%; margin-top: 10px;">
+                        <audio id="audio_{{ beat.id }}" controls style="width: 100%;" ontimeupdate="updateProgressBar({{ beat.id }})">
+                            <source src="{{ beat.audio_file_url }}" type="audio/mp3">
+                            Your browser does not support the audio element.
+                        </audio>
+                        
+                        <div class="audio-controls">
+                            <!-- @ts-ignore -->
+                            <!-- eslint-disable-next-line  -->
+                            <button onclick="togglePlayPause({{ beat.id }})" style="position: relative ;">
+                                <!-- eslint-enable-next-line -->
+                                <i id="play_icon_{{ beat.id }}" class="fa-solid fa-play"></i>
+                                <i id="pause_icon_{{ beat.id }}" class="fas fa-pause" style="display: none;"></i>
+                            </button>
+                            <input type="range" id="seekbar_{{ beat.id }}" min="0" max="{{ beat.duration }}" step="1" value='0'style="
+                            margin-top: 0px;
+                        " class="seekbar" onchange="seekAudio({{ beat.id }})" oninput="updateSeekbarTooltip(this)">
+                            <div id="seekbar_tooltip_{{ beat.id }}" class="seekbar-tooltip" style="height: 34px;padding-top: 5px;margin-left: 6px;">0:00</div>
+                        </div>
+                        <progress id="progress_{{ beat.id }}" value="0" max="100" style="opacity: 0%;"></progress>
+                        <div style="min-height: 54px; min-width: 815.22;">
+                            <h3><strong>{{ beat.price }} €</strong>
+                                <div style="position: absolute; top:62px;left:1040px;">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        {% if request.user.is_authenticated %}
+                                            <input type="hidden" name="beat_id" value="{{ beat.id }}">
+                                            {% if request.user in beat.likes.all %}
+                                                <button type="submit" name="unlike_button" style="background: none; border: none;">
+                                                    <div style="display: flex; align-items: center; color: #ffffff;">
+                                                        <i class="fa-solid fa-heart fa-xs" style="color: #c03535; margin-right: 4px;"></i>
+                                                        <span style="font-size: 12px;">{{ beat.like_count }}</span>
+                                                    </div>
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" name="like_button" style="background: none; border: none;" onclick="updateViews({{ beat.id }})">
+                                                    <div style="display: flex; align-items: center; color: #ffffff;">
+                                                        <i class="fa-regular fa-heart fa-xs" style="color: #f8f8f8; margin-right: 4px;"></i>
+                                                        <span style="font-size: 12px;">{{ beat.like_count }}</span>
+                                                    </div>
+                                                </button>
+                                            {% endif %}
+                                        {% else %}
+                                            <div style="display: flex; align-items: center; color: #ffffff;">
+                                                <i class="fa-regular fa-heart fa-xs" style="color: #f8f8f8; margin-right: 4px;"></i>
+                                                <span style="font-size: 12px;">{{ beat.like_count }}</span>
+                                            </div>
+                                        {% endif %}
+                                        <i class="fa-solid fa-link fa-sm pointerCursor" style="color: #ffffff;" onclick="copyLink('{% url 'accounts:detail_beat' beat.id %}')"></i>
+                                    </form>
+                                </div>
+                                
+                            </h3>
+                        </div>
+                        {% if beat.score in top_3_scores %}
+                        <div style="position: absolute; top:118px;left: 419px; background-color: #ed3a3a42; border-radius: 100px; text-align: center; align-items: center; padding: 5px 10px; display: flex;"><strong style="margin-right: 5px;">Trends</strong> <i class="fa-solid fa-chart-line" style="color: #ffffff;"></i></div>
+                        {% endif %}
+                    </div>
+                    
+                    {% else %}
+                    <p style="color: #999;">Audio file not found.</p>
+                    {% endif %}
+                    
+                </div>
+                <div style="height: 196px;width: 10%; display: flex;flex-direction: column  ;justify-content:space-around ;align-items: center;">
+                    <i class="fa-solid fa-heart" style="color: #ff0000;"></i>
+                    <i class="fa-solid fa-bookmark" style="color: #ffffff;"></i>
+                    <i class="fa-solid fa-comment" style="color: #ffffff;"></i>
+                    <i class="fa-solid fa-share" style="color: #ffffff;"></i>
+                </div>
+            </div>
+        </div>
+        </a>
+        {% endfor %}
+        {% else %}
+        <p style="color: #999;"> {{ error }} </p>
+        {% endif %}
+    </div>
+
+</main>
+</div>
+</div>
+
+<style>
+    h1 {
+        font-size: 200%;
+    }
+
+    .gradientDiv {
+        position: absolute;
+        top: 50px;
+        left: 0;
+        transform: translate(-50%, -50%);
+        -webkit-mask-image: -webkit-gradient(linear, left top, right top, from(rgba(0, 0, 0, 1)), """oui c'est rouge mais c'est juste la couleur c juste tkt"""
+            to(rgba(0, 0, 0, 0)));
+        mask-image: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+    }
+
+    audio {
+        display: none;
+    }
+
+    audio::-webkit-media-controls-panel {
+        background-color: rgb(51, 51, 51);
+    }
+
+    .audio-controls {
+        display: flex;
+        margin-top: 5px;
+        width: 500px;
+    }
+
+    .audio-controls button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+
+    .play-btn {
+        position: relative;
+        height: 34px;
+    }
+
+    .audio-controls button:hover {
+        background-color: #0056b3;
+    }
+
+    #THEDIV {
+        transition: all 0.1s ease-in;
+    }
+    .beatArtist:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    #THEDIV:hover {
+        -webkit-box-shadow: 0px 0px 16px 8px rgba(0, 0, 0, 0.61);
+        box-shadow: 0px 0px 16px 8px rgba(0, 0, 0, 0.31);
+        margin-bottom: 2px;
+        background-color: #1e1e28;
+    }
+
+#searchnone{
+    display: none;
+}
+#search{
+    border-radius: 50px;
+    border: none;
+    outline: none;
+    width: 400px;
+}
+.searchbtn
+{
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    border: none;
+    padding-right: 11px;
+    position: absolute;
+    top: 1px;
+    left: 338px;
+    padding: 6px 1px;
+    background-color: #2d373f00;
+    color: #fff;
+}
+select:focus {
+    outline: none;
+    border: none; /* Optional: removes the border entirely */
+    box-shadow: none; /* Optional: removes any box-shadow */
+}
+
+    #arrowdiv:hover {
+      background-color: #1b1b1bFF;
+    }
+    #sidebar {
+        background-color: rgb(29, 29, 29);
+        transition: transform 0.3s ease-in-out;
+        z-index: 1000;
+    }
+    #sidebar.collapsed {
+        transform: translateX(-320px); /* Collapsed position */
+        display: none;
+    }
+    .seekbar {
+        position: relative;
+        width: 160px;
+        margin-top: 4px;
+        background-color: #66666600;
+    }
+
+    .audio-controls button {
+        background-color: #ffffff00;
+        height: 34px;
+        width: 34px;
+    }
+
+    .audio-controls:hover button:hover {
+        background-color: #ffffff31;
+        border-radius: 3px;
+    }
+    #arrowdiv {
+        position: relative;
+        height: 100%;
+        width: 80px;
+        background-color: #1b1b1b00;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease-in-out; /* Ensure transition is defined */
+        padding: 0 8px;
+        left: 0%;
+        transform: translate(0%, 0%);
+        cursor: pointer;
+        z-index: 1100;
+    }
+
+    #arrowdiv.collapsed {
+        left: -320px; /* Adjusted left position when collapsed */
+    }
+
+    #arrowdiv:hover {
+        background-color: #1b1b1bFF;
+    }
+
+    #sidebar {
+        background-color: rgb(29, 29, 29);
+        transition: transform 0.3s ease-in-out; /* Ensure transition is defined */
+        z-index: 1000;
+    }
+
+    #sidebar.collapsed {
+        transform: translateX(-320px); /* Collapsed position */
+    }
+
+    #main-content {
+        transition: transform 0.3s ease-in-out; /* Ensure transition is defined */
+    }
+
+    #main-content.collapsed {
+        transform: translateX(-300px); /* Adjusted transform value when sidebar collapsed */
+    }
+    .col-12 {
+        width: 100%;
+    }
+    .noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+.pointerCursor{
+    cursor: pointer;
+}
+
+</style>
+
+<script>
+
+
+// Update price value display as the user types in the price input field
+const priceInput = document.getElementById('price');
+const priceValue = document.getElementById('price-value');
+
+priceInput.addEventListener('input', function() {
+  const price = this.value || 0; // Get the current price value
+  priceValue.textContent = price; // Update the price display
+});
+
+// Update price value display when the slider is moved (as before)
+const priceRange = document.getElementById('price-range');
+
+priceRange.addEventListener('input', function() {
+  const price = this.value;
+  priceValue.textContent = price;
+});
+
+function togglePlayPause(beatId) {
+      var audio = document.getElementById('audio_' + beatId);
+      var playIcon = document.getElementById('play_icon_' + beatId);
+      var pauseIcon = document.getElementById('pause_icon_' + beatId);
+      var allAudios = document.querySelectorAll('audio');
+  
+      // Pause all other audios
+      allAudios.forEach(function(aud) {
+          if (aud.id !== 'audio_' + beatId) {
+              aud.pause();
+              var otherBeatId = aud.id.split('_')[1];
+              var otherPlayIcon = document.getElementById('play_icon_' + otherBeatId);
+              var otherPauseIcon = document.getElementById('pause_icon_' + otherBeatId);
+              otherPlayIcon.style.display = 'inline-block';
+              otherPauseIcon.style.display = 'none';
+          }
+      });
+  
+      // Toggle play/pause for the selected beat
+      if (audio.paused) {
+          audio.play();
+          playIcon.style.display = 'none';
+          pauseIcon.style.display = 'inline-block';
+      } else {
+          audio.pause();
+          playIcon.style.display = 'inline-block';
+          pauseIcon.style.display = 'none';
+      }
+          // Ajax call to update views
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '{% url "beats:update_views" %}', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.setRequestHeader('X-CSRFToken', csrftoken);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.success) {
+                console.log('Views updated successfully:', response.views);
+            } else {
+                console.error('Failed to update views:', response.error);
+            }
+        }
+    };
+    xhr.send('beat_id=' + beatId);
+
+  }
+  function updateViews(beatId) {
+
+          // Ajax call to update views
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '{% url "beats:update_views" %}', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.setRequestHeader('X-CSRFToken', csrftoken);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.success) {
+                console.log('Views updated successfully:', response.views);
+            } else {
+                console.error('Failed to update views:', response.error);
+            }
+        }
+    };
+    xhr.send('beat_id=' + beatId);
+
+  }
+
+  function copyLink(copyText) {
+    copyText = 'http://192.168.1.26:8000' + copyText;
+    if (!navigator.clipboard) {
+        // Fallback for browsers that do not support navigator.clipboard
+        var textArea = document.createElement("textarea");
+        textArea.value = copyText;
+        textArea.style.position = "fixed";  // Make it invisible but selectable
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? 'successful' : 'unsuccessful';
+            console.log('Fallback: Copying text command was ' + msg);
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+        }
+        document.body.removeChild(textArea);
+        return;
+    }
+    
+    // Modern browsers with navigator.clipboard support
+    navigator.clipboard.writeText(`hello`)
+        .then(() => {
+            alert("Copied the link to clipboard: " + copyText);
+        })
+        .catch(err => {
+            console.error('Unable to copy: ', err);
+        });
+}
+  function seekAudio(beatId) {
+      var audio = document.getElementById('audio_' + beatId);
+      var seekbar = document.getElementById('seekbar_' + beatId);
+      var value = seekbar.value;
+      audio.currentTime = value;
+  }
+  
+  function updateProgressBar(beatId) {
+      var audio = document.getElementById('audio_' + beatId);
+      var progressBar = document.getElementById('progress_' + beatId);
+      var seekbar = document.getElementById('seekbar_' + beatId);
+  
+      var value = (audio.currentTime / audio.duration) * 100;
+      progressBar.value = value;
+      seekbar.value = audio.currentTime;
+  
+      updateSeekbarTooltip(seekbar);
+  }
+  
+  function updateSeekbarTooltip(seekbar) {
+      var tooltip = seekbar.nextElementSibling;
+      var value = seekbar.value;
+      var minutes = Math.floor(value / 60);
+      var seconds = Math.floor(value % 60);
+      var time = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+      tooltip.innerHTML = time;
+      tooltip.style.left = (value / seekbar.max) * 100 + '%';
+  }
+
+
+</script>
+
+{% endblock content %}
